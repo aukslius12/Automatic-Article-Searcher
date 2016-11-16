@@ -1,0 +1,17 @@
+http://rss.cnn.com/rss/money_topstories.rss
+http://rss.cnn.com/rss/money_technology.rss
+http://rss.cnn.com/rss/money_luxury.rss
+http://rss.cnn.com/rss/money_markets.rss
+http://rss.cnn.com/rss/edition_business.rss
+http://rss.cnn.com/rss/money_news_economy.rss
+http://rss.cnn.com/rss/money_news_companies.rss
+http://rss.cnn.com/rss/money_funds.rss
+http://www.wsj.com/xml/rss/3_7014.xml
+http://www.wsj.com/xml/rss/3_7085.xml
+http://feeds.reuters.com/reuters/businessNews
+http://feeds.reuters.com/reuters/technologyNews
+http://feeds.reuters.com/reuters/topNews?irpc=69
+http://feeds.marketwatch.com/marketwatch/bulletins
+http://www.newslookup.com/rss/business/cnbc.rss
+http://www.cnbc.com/id/19746125/device/rss/rss.xml
+http://www.newslookup.com/rss/business/bloomberg.rss

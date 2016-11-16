@@ -1,0 +1,98 @@
+BAC	Bank of America	Brian Moynihan	
+F	Ford Motor	William Ford	Ford
+FCX	Freeport McMoRan	Richard Adkerson	
+JCP	J.C. Penney	Marvin Ellison	
+VALE	Vale	Murilo Ferreira	
+CHK	Chesapeake Energy	Robert Lawler	
+WFC	Wells Fargo	Timothy Sloan	
+PBR	Petroleo Brasileiro	Pedro Parente	
+C	Citigroup	Michael Corbat	
+GE	General Electric	Jeffrey Immelt	
+PFE	Pfizer	Ian Read	
+ABX	Barrick Gold	Kelvin Dushnisky	
+GM	General Motors	Mary Barra	
+WFT	Weatherford International	Bernard Danner	
+AKS	AK Steel Holding	Kirk Reich	
+ABEV	Ambev	Bernardo Paiva	
+CX	Cemex	Fernando Gonzalez 	
+MT	ArcelorMittal	Lakshmi Mittal	
+JPM	JPMorgan Chase	Jamie Dimon	
+AUY	Yamana Gold	Peter Marrone	
+T	AT&T	Randall Stephenson	
+BABA	Alibaba	Daniel Zhang	
+DIS	Walt Disney	Robert Iger 	
+MS	Morgan Stanley	James Gorman	
+VRX	Valeant Pharmaceuticals	Joseph Papa	
+FCAU	Fiat Chrysler		
+PBRA	Petroleo Brasileiro		
+X	United States Steel		
+RAD	Rite Aid		
+ITUB	Itau Unibanco		
+SWN	Southwestern Energy		
+KGC	Kinross Gold		
+GGB	Gerdau ADR		
+S	Sprint		
+WLL	Whiting Petroleum		
+GG	Goldcorp		
+KMI	Kinder Morgan		
+VZ	Verizon		
+CFG	Citizens Financial Group		
+CLF	Cliffs Natural Resources		
+KORS	Michael Kors Holdings		
+SYF	Synchrony Financial		
+TWTR	Twitter		
+NEM	Newmont Mining		
+TCK	Teck Resources		
+BBY	Best Buy		
+RIG	Transocean		
+MRK	Merck&Co		
+MRO	Marathon Oil		
+XOM	Exxon Mobil		
+ETE	Energy Transfer Equity		
+KO	Coca-Cola		
+DNR	Denbury		
+EGO	Eldorado Gold		
+BMY	Bristol Myers Squibb		
+SLW	Silver Wheaton		
+HMY	Harmony Gold Mining		
+ORCL	Oracle		
+OAS	Oasis Petroleum		
+HST	Host Hotels&Resorts		
+AZN	AstraZeneca		
+AG	First Majestic Silver		
+LC	LendingClub		
+ECA	Encana		
+NOK	Nokia		
+HL	Hecla Mining		
+SCHW	Charles Schwab		
+JWN	Nordstrom		
+KR	Kroger		
+COTY	Coty		
+GPT	Gramercy Property		
+IBN	ICICI Bank		
+KSS	Kohl's		
+FIT	Fitbit		
+MET	MetLife		
+VER	VEREIT		
+AMX	America Movil		
+AU	AngloGold Ashanti		
+P	Pandora Media		
+DAL	Delta Air Lines		
+HPQ	HP		
+BBT	BB&T		
+GFI	Gold Fields		
+ABBV	AbbVie		
+SRC	Spirit Realty		
+EXC	Exelon		
+GNW	Genworth Financial		
+IAG	IAMGOLD		
+AIG	American International Group		
+CIG	Companhia Energetica de Minas Gerais Cemig		
+USB	U.S. Bancorp		
+CVS	CVS Health		
+DOW	Dow Chemical		
+BCS	Barclays		
+HPE	Hewlett Packard		
+SAN	Banco Santander		
+CTL	CenturyLink		
+PHM	PulteGroup		
