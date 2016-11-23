@@ -1,7 +1,6 @@
 #NASDAQ ir NYSE veikia nuo 16:30 iki 24:00 Lietuvos laiku.
 dataGathering <- function (timeInHours = 1,
                            resultsFile = T) {
-  
   if (timeInHours < 1) {
     stop("Time should be more than 1 hour.")
   }
@@ -26,14 +25,21 @@ dataGathering <- function (timeInHours = 1,
   
   RSS.Feeds <-
     read.table(
-      "C:/Users/JURGIS/Desktop/Potencialus plagiatas/Data/RSS Feeds.txt",
+      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/RSS Feeds.txt",
       quote = "\"",
       comment.char = ""
     )
   
   Tickers <-
-    read.csv("C:/Users/JURGIS/Desktop/Potencialus plagiatas/Data/Tickers.txt",
-             sep = "")
+    read_delim(
+      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/Tickers.txt",
+      " ",
+      escape_double = FALSE,
+      col_names = FALSE,
+      col_types = cols(X1 = col_skip()),
+      na = "NA",
+      trim_ws = TRUE
+    )
   
   tempData <- keywordSearch (RSS.Feeds, Tickers)
   yahooData <- keywordSearch (RSS.Feeds, Tickers, yahoo = T)
@@ -162,7 +168,7 @@ dataGathering <- function (timeInHours = 1,
   }
   if (resultsFile == T) {
     rm(tickers)
-    return (results[-1, ])
+    return (results[-1,])
   } else {
     rm(tickers)
     return(results)
