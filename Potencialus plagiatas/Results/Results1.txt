@@ -1,4 +1,0 @@
-"titles" "pubdates" "Trade.Time" "Last" "Trade Time" "Last"
-"structure.c..Wells.Fargo..No.customer.backlash...yet....Fri..14.Oct.2016.09.51.07.EDT." "Wells Fargo: No customer backlash...yet" "Fri, 14 Oct 2016 09:51:07 EDT" 2016-10-14 09:47:00 44.75 2016-10-14 10:07:00 45.09
-"structure.c..Twitter.stock.tanks.as.Salesforce.backs.out.of.bidding..." "Twitter stock tanks as Salesforce backs out of bidding" "Fri, 14 Oct 2016 14:33:30 EDT" 2016-10-14 02:25:00 16.65 2016-10-14 02:54:00 16.6387
-"structure.c..John.Kasich.bans.Wells.Fargo.from.Ohio.deals....Fri..14.Oct.2016.15.02.42.EDT." "John Kasich bans Wells Fargo from Ohio deals" "Fri, 14 Oct 2016 15:02:42 EDT" 2016-10-14 02:55:00 44.71 2016-10-14 03:15:00 44.8093

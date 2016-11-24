@@ -32,11 +32,9 @@ dataGathering <- function (timeInHours = 1,
   
   Tickers <-
     read_delim(
-      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/Tickers.txt",
+      "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Data/Tickers.txt",
       " ",
       escape_double = FALSE,
-      col_names = FALSE,
-      col_types = cols(X1 = col_skip()),
       na = "NA",
       trim_ws = TRUE
     )
@@ -44,11 +42,13 @@ dataGathering <- function (timeInHours = 1,
   tempData <- keywordSearch (RSS.Feeds, Tickers)
   yahooData <- keywordSearch (RSS.Feeds, Tickers, yahoo = T)
   if (resultsFile == T) {
-    results <-
-      read.csv(
-        "C:/Users/JURGIS/Desktop/Potencialus plagiatas/Results.txt",
-        sep = "",
-        stringsAsFactors = FALSE
+    
+    Results <-
+      read_delim(
+        "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Results.txt",
+        " ",
+        escape_double = FALSE,
+        trim_ws = TRUE
       )
     class(results[, 3]) <- "character"
   } else {
