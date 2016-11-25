@@ -176,7 +176,7 @@ kwdMatch <- function (kwd, compInfo) {
       }
     }
   }
-  return (as.character(compInfo[as.integer(res), 1]))
+  return (as.character(unlist(compInfo[as.integer(res), 1])))
   #Returns row numbers of the companies that were found before.
 }
 
@@ -223,10 +223,9 @@ rssFeed <- function (webpages, yahoo = F) {
     #Webpages can be automatized to use tickers from Tickers.txt file !!!!!!!!
     webpages <-
       "https://feeds.finance.yahoo.com/rss/2.0/headline?s=bac,f,fcx,jcp,vale,chk,wfc,pbr,c,pfe,abx,gm,wft,aks,abev,cx,mt,jpm,auy,t,baba,dis,ms,vrx,fcau,x,rad,itub,kgc,ggb,wll,gg,kmi,vz,cfg,clf,kors,syf,twtr,tck,bby,rig,mrk,mro,xom,ete,ko,dnr,ego,bmy,slw,hmy,orcl,oas,hst,azn,ag,lc,eca,nok,schw,jwn,kr,coty,gpt,kss,fit,met,amx,au,p,dal,hpq,bbt,gfi,abbv,exc,gnw,iag,aig,cig,usb,cvs,dow,bcs,hpe,san,ctl,phm,m&region=US&lang=en-US"
-    doc     <- try(htmlParse(getURL(webpages), asText = T))
-    titles    <- xpathSApply(doc, '//item/title', xmlValue)
-    pubdates <- xpathSApply(doc, '//item/pubdate', xmlValue)
     doc <- try(xmlInternalTreeParse(getURL(webpages)))
+    titles    <- xpathSApply(doc, '//item/title', xmlValue)
+    pubdates <- xpathSApply(doc, '//item/pubDate', xmlValue)
     links <-
       as.vector(unlist(xpathApply(doc, '//item/link', xmlValue)))
     feed <-

@@ -13,6 +13,7 @@ dataGathering <- function (timeInHours = 1,
   library (stringr)
   library (quantmod)
   library(RJSONIO)
+  library(readr)
   ##Optional lines of code to make a sound and print the time when an error occurs.
   library (beepr)
   options(
@@ -24,10 +25,12 @@ dataGathering <- function (timeInHours = 1,
   ##
   
   RSS.Feeds <-
-    read.table(
-      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/RSS Feeds.txt",
-      quote = "\"",
-      comment.char = ""
+    read_delim(
+      "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Data/RSS Feeds.txt",
+      " ",
+      escape_double = FALSE,
+      col_names = FALSE,
+      trim_ws = TRUE
     )
   
   Tickers <-
@@ -42,8 +45,7 @@ dataGathering <- function (timeInHours = 1,
   tempData <- keywordSearch (RSS.Feeds, Tickers)
   yahooData <- keywordSearch (RSS.Feeds, Tickers, yahoo = T)
   if (resultsFile == T) {
-    
-    Results <-
+    results <-
       read_delim(
         "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Results.txt",
         " ",
@@ -168,7 +170,7 @@ dataGathering <- function (timeInHours = 1,
   }
   if (resultsFile == T) {
     rm(tickers)
-    return (results[-1,])
+    return (results[-1, ])
   } else {
     rm(tickers)
     return(results)
