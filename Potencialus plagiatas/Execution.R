@@ -45,6 +45,7 @@ dataGathering <- function (timeInHours = 1,
   tempData <- keywordSearch (RSS.Feeds, Tickers)
   yahooData <- keywordSearch (RSS.Feeds, Tickers, yahoo = T)
   if (resultsFile == T) {
+    
     results <-
       read_delim(
         "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Results.txt",
@@ -52,14 +53,16 @@ dataGathering <- function (timeInHours = 1,
         escape_double = FALSE,
         trim_ws = TRUE
       )
-    class(results[, 3]) <- "character"
+    
   } else {
+    
     #Code below applies if Results.txt file is missing
     results <-
       data.frame (
-        titles = as.character(""),
-        pubdates = as.character(""),
-        links = as.character(""),
+        Titles = as.character(""),
+        Pubdates = as.character(""),
+        Links = as.character(""),
+        Tickers = as.character(""),
         Trade.Time = as.character(""),
         Last = as.character(""),
         Trade.Time = as.character(""),
@@ -86,8 +89,7 @@ dataGathering <- function (timeInHours = 1,
   
   tm <- proc.time()
   while ((proc.time() - tm)[3] < (timeInHours * 3600)) {
-    
-    if (havingInternet() == FALSE){
+    if (havingInternet() == FALSE) {
       Sys.sleep(5)
     } else {
       
@@ -105,7 +107,7 @@ dataGathering <- function (timeInHours = 1,
       ind2 <- which((proc.time()[3] - tim2) > 3600)
       if (length(ind2) > 0) {
         for (k in 1:length(ind2)) {
-          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 8:9] <-
+          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 9:10] <-
             sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
           resLength <- resLength + length(unlist(tick[ind2[k]]))
         }
@@ -123,7 +125,7 @@ dataGathering <- function (timeInHours = 1,
         if (length (tempData) > 2) {
           tempres <- tickerMatching(info = tempData, compInfo = Tickers)
           res[[i]] <-
-            cbind(data.frame(tempData[1]), data.frame(tempres))
+            cbind(data.frame(tempData[1]), Ticker = tickers, data.frame(tempres))
           tick[[i]] <- tickers
           tim[i] <- proc.time()[3]
           i <- i + 1
@@ -146,7 +148,7 @@ dataGathering <- function (timeInHours = 1,
         if (length (yahooData) > 2) {
           tempres <- tickerMatching(info = yahooData, compInfo = Tickers)
           res[[i]] <-
-            cbind(data.frame(yahooData[1]), data.frame(tempres))
+            cbind(data.frame(yahooData[1]), Ticker = tickers, data.frame(tempres))
           tick[[i]] <- tickers
           tim[i] <- proc.time()[3]
           i <- i + 1
@@ -163,15 +165,13 @@ dataGathering <- function (timeInHours = 1,
   #finishes running
   tm <- proc.time()
   while ((proc.time() - tm)[3] < 3600) {
-    
-    if (havingInternet() == FALSE){
+    if (havingInternet() == FALSE) {
       Sys.sleep(5)
     } else {
-    
       ind2 <- which((proc.time()[3] - tim2) > 3600)
       if (length(ind2) > 0) {
         for (k in 1:length(ind2)) {
-          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 8:9] <-
+          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 9:10] <-
             sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
           resLength <- resLength + length(unlist(tick[ind2[k]]))
         }
@@ -183,7 +183,7 @@ dataGathering <- function (timeInHours = 1,
   
   if (resultsFile == F) {
     rm(tickers)
-    return (results[-1,])
+    return (results[-1, ])
   } else {
     rm(tickers)
     return(results)
