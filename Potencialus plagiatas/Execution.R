@@ -12,8 +12,8 @@ dataGathering <- function (timeInHours = 1,
   library (digest)
   library (stringr)
   library (quantmod)
-  library(RJSONIO)
-  library(readr)
+  library (RJSONIO)
+  library (readr)
   ##Optional lines of code to make a sound and print the time when an error occurs.
   library (beepr)
   options(
@@ -86,70 +86,76 @@ dataGathering <- function (timeInHours = 1,
   
   tm <- proc.time()
   while ((proc.time() - tm)[3] < (timeInHours * 3600)) {
-    ind1 <- which((proc.time()[3] - tim) > 1200)
-    if (length(ind1) > 0) {
-      for (k in 1:length(ind1)) {
-        res20 <- getQuote0 (unlist(tick[ind1[k]]))[1:2]
-        results <-
-          rbind (results, setNames(cbind(res[[ind1[k]]], res20, "", ""), names(results)))
-      }
-      tim2[ind1] <- tim[ind1]
-      tim[ind1] <- 2000000
-    }
     
-    ind2 <- which((proc.time()[3] - tim2) > 3600)
-    if (length(ind2) > 0) {
-      for (k in 1:length(ind2)) {
-        results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 8:9] <-
-          sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
-        resLength <- resLength + length(unlist(tick[ind2[k]]))
-      }
-      tim2[ind2] <- 2000000
-      res[[ind2]] <- NA
-    }
-    
-    if ((proc.time()[3] - min1) > 120) {
-      tempData <- keywordSearch (
-        webpages = RSS.Feeds,
-        compInfo = Tickers,
-        digInfo = as.character (unlist (tempData[2]))
-      )
+    if (havingInternet() == FALSE){
+      Sys.sleep(5)
+    } else {
       
-      if (length (tempData) > 2) {
-        tempres <- tickerMatching(info = tempData, compInfo = Tickers)
-        res[[i]] <-
-          cbind(data.frame(tempData[1]), data.frame(tempres))
-        tick[[i]] <- tickers
-        tim[i] <- proc.time()[3]
-        i <- i + 1
-        if (i == 50) {
-          i <- 1
+      ind1 <- which((proc.time()[3] - tim) > 1200)
+      if (length(ind1) > 0) {
+        for (k in 1:length(ind1)) {
+          res20 <- getQuote0 (unlist(tick[ind1[k]]))[1:2]
+          results <-
+            rbind (results, setNames(cbind(res[[ind1[k]]], res20, "", ""), names(results)))
         }
+        tim2[ind1] <- tim[ind1]
+        tim[ind1] <- 2000000
       }
-      min1 <- proc.time()[3]
-    }
-    
-    #A separate testing algorythm for yahoo data since it updates more frequently
-    if ((proc.time()[3] - min2) > 60) {
-      yahooData <- keywordSearch (
-        webpages = RSS.Feeds,
-        compInfo = Tickers,
-        digInfo = as.character (unlist (yahooData[2])),
-        yahoo = T
-      )
       
-      if (length (yahooData) > 2) {
-        tempres <- tickerMatching(info = yahooData, compInfo = Tickers)
-        res[[i]] <-
-          cbind(data.frame(yahooData[1]), data.frame(tempres))
-        tick[[i]] <- tickers
-        tim[i] <- proc.time()[3]
-        i <- i + 1
-        if (i == 50) {
-          i <- 1
+      ind2 <- which((proc.time()[3] - tim2) > 3600)
+      if (length(ind2) > 0) {
+        for (k in 1:length(ind2)) {
+          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 8:9] <-
+            sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
+          resLength <- resLength + length(unlist(tick[ind2[k]]))
         }
+        tim2[ind2] <- 2000000
+        res[[ind2]] <- NA
       }
-      min2 <- proc.time()[3]
+      
+      if ((proc.time()[3] - min1) > 120) {
+        tempData <- keywordSearch (
+          webpages = RSS.Feeds,
+          compInfo = Tickers,
+          digInfo = as.character (unlist (tempData[2]))
+        )
+        
+        if (length (tempData) > 2) {
+          tempres <- tickerMatching(info = tempData, compInfo = Tickers)
+          res[[i]] <-
+            cbind(data.frame(tempData[1]), data.frame(tempres))
+          tick[[i]] <- tickers
+          tim[i] <- proc.time()[3]
+          i <- i + 1
+          if (i == 50) {
+            i <- 1
+          }
+        }
+        min1 <- proc.time()[3]
+      }
+      
+      #A separate testing algorythm for yahoo data since it updates more frequently
+      if ((proc.time()[3] - min2) > 60) {
+        yahooData <- keywordSearch (
+          webpages = RSS.Feeds,
+          compInfo = Tickers,
+          digInfo = as.character (unlist (yahooData[2])),
+          yahoo = T
+        )
+        
+        if (length (yahooData) > 2) {
+          tempres <- tickerMatching(info = yahooData, compInfo = Tickers)
+          res[[i]] <-
+            cbind(data.frame(yahooData[1]), data.frame(tempres))
+          tick[[i]] <- tickers
+          tim[i] <- proc.time()[3]
+          i <- i + 1
+          if (i == 50) {
+            i <- 1
+          }
+        }
+        min2 <- proc.time()[3]
+      }
     }
   }
   
@@ -157,20 +163,27 @@ dataGathering <- function (timeInHours = 1,
   #finishes running
   tm <- proc.time()
   while ((proc.time() - tm)[3] < 3600) {
-    ind2 <- which((proc.time()[3] - tim2) > 3600)
-    if (length(ind2) > 0) {
-      for (k in 1:length(ind2)) {
-        results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 8:9] <-
-          sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
-        resLength <- resLength + length(unlist(tick[ind2[k]]))
+    
+    if (havingInternet() == FALSE){
+      Sys.sleep(5)
+    } else {
+    
+      ind2 <- which((proc.time()[3] - tim2) > 3600)
+      if (length(ind2) > 0) {
+        for (k in 1:length(ind2)) {
+          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 8:9] <-
+            sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
+          resLength <- resLength + length(unlist(tick[ind2[k]]))
+        }
+        tim2[ind2] <- 2000000
+        res[[ind2]] <- NA
       }
-      tim2[ind2] <- 2000000
-      res[[ind2]] <- NA
     }
   }
-  if (resultsFile == T) {
+  
+  if (resultsFile == F) {
     rm(tickers)
-    return (results[-1, ])
+    return (results[-1,])
   } else {
     rm(tickers)
     return(results)

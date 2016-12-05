@@ -1,3 +1,19 @@
+#------- Internet Connectivity Function ------
+
+#A simple output of TRUE/FALSE depending on if there is an internet connectivity.
+#All credits go to user "eyjo" in the stackoverflow.com forums.
+#Source: http://stackoverflow.com/questions/5076593/how-to-determine-if-you-have-an-internet-connection-in-r
+
+havingInternet <- function() {
+  if (.Platform$OS.type == "windows") {
+    ipmessage <- system("ipconfig", intern = TRUE)
+  } else {
+    ipmessage <- system("ifconfig", intern = TRUE)
+  }
+  validIP <- "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[.]){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+  any(grep(validIP, ipmessage))
+}
+
 #------- Keyword Search Function --------
 
 #library (stringr)
