@@ -26,7 +26,7 @@ dataGathering <- function (timeInHours = 1,
   
   RSS.Feeds <-
     read_delim(
-      "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Data/RSS Feeds.txt",
+      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/RSS Feeds.txt",
       " ",
       escape_double = FALSE,
       col_names = FALSE,
@@ -35,7 +35,7 @@ dataGathering <- function (timeInHours = 1,
   
   Tickers <-
     read_delim(
-      "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Data/Tickers.txt",
+      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/Tickers.txt",
       " ",
       escape_double = FALSE,
       na = "NA",
@@ -48,7 +48,7 @@ dataGathering <- function (timeInHours = 1,
     
     results <-
       read_delim(
-        "C:/Users/Jurgis/Desktop/Github/Automatic-article-Searcher/Potencialus plagiatas/Results.txt",
+        "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Results.txt",
         " ",
         escape_double = FALSE,
         trim_ws = TRUE
