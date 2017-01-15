@@ -449,8 +449,6 @@ dataGathering <- function (timeInHours = 1,
     
   }
   
-  rm(tickers)
-  
   if (resultsFile == F) {
     return (results[-1, ])
   } else {
@@ -469,7 +467,24 @@ write.table(
 
 ## An optional code which sends email to my account with the specified Data.
 
-newData <- Results[baseLength:nrow(Results),]$Titles
+newData <- Results[baseLength:nrow(Results),]
+
+#Filtering the gathered results
+Sys.setlocale('LC_TIME','C')
+#Adjusting the time.
+newData$Pubdates <- strptime(newData$Pubdates, "%a, %d %b %Y %H:%M:%S", tz = "EST")
+newData$Pubdates <- newData$Pubdates - 3600*5
+newData$Pubdates <- format (newData$Pubdates, format = "%b %d, %H:%M%p", tz = "EST", usetz = T)
+newData$Pubdates <- strptime(newData$Pubdates, format = "%b %d, %H:%M%p", tz = "EST")
+newData$Trade.Time <- strptime(newData$Trade.Time, "%b %d, %I:%M%p", tz = "EST")
+newData$Trade.Time.1 <- strptime(newData$Trade.Time.1, "%b %d, %I:%M%p", tz = "EST")
+newData$Trade.Time.2 <- strptime(newData$Trade.Time.2, "%b %d, %I:%M%p", tz = "EST")
+#Reducing the time error to <=1 minute.
+tdiff <- as.numeric(newData$Pubdates - newData$Trade.Time)
+newData <- newData[which(abs(tdiff)/60 <= 1),]#Returning data where time difference is less than 2 minutes.
+#Removing duplicated titles.
+newData <- subset(newData, !duplicated(Results[,1]))
+
 write.table(
   newData,
   "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/DataToSend.txt",
@@ -495,5 +510,4 @@ send.mail(from = "aukslius@gmail.com",
           send = TRUE,
           attach.files = c("D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.txt","D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/DataToSend.txt"))
 
-##---------
-file.copy()
+##xx---------
