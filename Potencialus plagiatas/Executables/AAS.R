@@ -489,6 +489,8 @@ send.mail(from = "aukslius@gmail.com",
                        "\nAll the data is in the text file\n\n", 
                        sep = ""),
           smtp = list(host.name = "smtp.gmail.com", port = 465, 
+                      user.name = "no.com",            
+                      passwd = "no", ssl = TRUE),
           authenticate = TRUE,
           send = TRUE,
           attach.files = c("D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.txt","D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/DataToSend.txt"))
