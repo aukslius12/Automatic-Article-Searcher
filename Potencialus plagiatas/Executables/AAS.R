@@ -5,13 +5,11 @@
 #Source: http://stackoverflow.com/questions/5076593/how-to-determine-if-you-have-an-internet-connection-in-r
 
 havingInternet <- function() {
-  if (.Platform$OS.type == "windows") {
-    ipmessage <- system("ipconfig", intern = TRUE)
+  if (class(try(getURL("www.google.com"))) != "try-error") {
+    return(TRUE)
   } else {
-    ipmessage <- system("ifconfig", intern = TRUE)
+    return(FALSE)
   }
-  validIP <- "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[.]){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
-  any(grep(validIP, ipmessage))
 }
 
 #------- Keyword Search Function --------
@@ -19,73 +17,80 @@ havingInternet <- function() {
 #library (stringr)
 #library (digest)
 
-keywordSearch <-
-  function (webpages,
-            compInfo,
-            digInfo = "",
-            yahoo = F) {
-    compInfo <-
-      c (as.vector (unlist ((compInfo[, 2]))), as.vector (unlist (strsplit (
-        unlist(compInfo[, 3]), ", "
-      ))), as.vector (unlist (strsplit (
-        unlist(compInfo[, 4]), ", "
-      ))))
-    rss <-
-      data.frame (rssFeed (webpages, yahoo), stringsAsFactors = F) #Returns a rss feed using my function described before.
-    results <-
-      data.frame (
-        Titles = as.character(),
-        Pubdates = as.character(),
-        Links = as.character(),
-        stringsAsFactors = F
-      )
-    kwrd <- as.character()
-    i <- 1
-    test <- digest (rss[i, 1], algo = "sha256")
-    res <- digInfo == test
-    
-    while (res == F & i < length (rss[, 1])) {
-      if (any(str_detect(
-        str_to_lower(as.character(rss[i, 1])),
-        str_to_lower(as.character(compInfo))
-      )))
-      {
-        test <- digest (as.character(rss[i, 1]), algo = "sha256")
-        res <- digInfo == test
-        if (res == F) {
-          kwrd <-
-            c (kwrd, unique(na.omit(str_extract(
-              tolower(as.character(rss[i, 1])), tolower(as.character(compInfo))
-            ))[1]))
-          results <-
-            rbind(
-              results,
-              data.frame(
-                Titles = rss[i, 1],
-                Pubdates = rss[i, 2],
-                Links = rss[i, 3],
-                stringsAsFactors = F
-              )
+keywordSearch <- function (webpages,
+                           compInfo,
+                           digInfo = "",
+                           yahoo = F) {
+  while (havingInternet() == FALSE) {
+    Sys.sleep(5)
+  }
+  rss <-
+    data.frame (rssFeed (webpages, yahoo), stringsAsFactors = F) #Returns a rss feed using my function described before.
+  if (rss[1, 1] == "try-error") {
+    return(list(F, digInfo))
+  }
+  compInfo <-
+    c (as.vector (unlist ((compInfo[, 2]))),
+       as.vector (unlist (strsplit (
+         unlist(compInfo[, 3]), ", "
+       ))),
+       as.vector (unlist (strsplit (
+         unlist(compInfo[, 4]), ", "
+       ))))
+  results <-
+    data.frame (
+      Titles = as.character(),
+      Pubdates = as.character(),
+      Links = as.character(),
+      stringsAsFactors = F
+    )
+  kwrd <- as.character()
+  i <- 1
+  test <- digest (rss[i, 1], algo = "sha256")
+  res <- digInfo == test
+  
+  while (res == F & i < nrow (rss)) {
+    if (any(str_detect(
+      str_to_lower(as.character(rss[i, 1])),
+      str_to_lower(as.character(compInfo))
+    )))
+    {
+      test <- digest (as.character(rss[i, 1]), algo = "sha256")
+      res <- digInfo == test
+      if (res == F) {
+        kwrd <-
+          c (kwrd, unique(na.omit(str_extract(
+            tolower(as.character(rss[i, 1])), tolower(as.character(compInfo))
+          ))[1]))
+        results <-
+          rbind(
+            results,
+            data.frame(
+              Titles = rss[i, 1],
+              Pubdates = rss[i, 2],
+              Links = rss[i, 3],
+              stringsAsFactors = F
             )
-          i <- i + 1
-        } else{
-          next()
-        }
-      } else {
+          )
         i <- i + 1
+      } else{
+        next()
       }
-    }
-    if (length(results[, 1]) == 0) {
-      return (list(F, digInfo))
     } else {
-      return (list (results,
-                    digest(as.character(results[1, 1]), algo = "sha256"),
-                    kwrd))
-      #Returns a list of 3 components: a rss feed which fits the keywords we specified,
-      #digested value of the last relevant rss feed article,
-      #keywords that were found while searching for relevant articles.
+      i <- i + 1
     }
   }
+  if (nrow(results) == 0) {
+    return (list(F, digInfo))
+  } else {
+    return (list (results,
+                  digest(as.character(results[1, 1]), algo = "sha256"),
+                  kwrd))
+    #Returns a list of 3 components: a rss feed which fits the keywords we specified,
+    #digested value of the last relevant rss feed article,
+    #keywords that were found while searching for relevant articles.
+  }
+}
 
 #------- getQuote() adjusted ---------
 
@@ -218,7 +223,10 @@ rssFeed <- function (webpages, yahoo = F) {
       )
     for (i in 1:length(webpages)) {
       xml.url <- webpages[i]
-      script <- getURL(xml.url)
+      script <- try(getURL(xml.url))
+      if (class(script) == "try-error") {
+        return(class(script))
+      }
       doc     <- try(xmlParse(script))
       if (class(doc)[1] != "try-error") {
         Titles    <- xpathSApply(doc, '//item/title', xmlValue)
@@ -232,7 +240,7 @@ rssFeed <- function (webpages, yahoo = F) {
       }
     }
     feed <- sapply (feed, as.character)
-    feed <- feed[!duplicated(feed[, 1]), ]
+    feed <- feed[!duplicated(feed), ]
     return(feed)
     #Returns feed from all RSS' provided
   } else {
@@ -240,6 +248,9 @@ rssFeed <- function (webpages, yahoo = F) {
     webpages <-
       "https://feeds.finance.yahoo.com/rss/2.0/headline?s=bac,f,fcx,jcp,vale,chk,wfc,pbr,c,pfe,abx,gm,wft,aks,abev,cx,mt,jpm,auy,t,baba,dis,ms,vrx,fcau,x,rad,itub,kgc,ggb,wll,gg,kmi,vz,cfg,clf,kors,syf,twtr,tck,bby,rig,mrk,mro,xom,ete,ko,dnr,ego,bmy,slw,hmy,orcl,oas,hst,azn,ag,lc,eca,nok,schw,jwn,kr,coty,gpt,kss,fit,met,amx,au,p,dal,hpq,bbt,gfi,abbv,exc,gnw,iag,aig,cig,usb,cvs,dow,bcs,hpe,san,ctl,phm,m&region=US&lang=en-US"
     doc <- try(xmlInternalTreeParse(getURL(webpages)))
+    if (class(doc)[1] == "try-error") {
+      return(class(script))
+    }
     Titles    <- xpathSApply(doc, '//item/title', xmlValue)
     Pubdates <- xpathSApply(doc, '//item/pubDate', xmlValue)
     Links <-
@@ -247,7 +258,7 @@ rssFeed <- function (webpages, yahoo = F) {
     feed <-
       data.frame(Titles, Pubdates, Links, stringsAsFactors = F)
     feed <- sapply (feed, as.character)
-    feed <- feed[!duplicated(feed[, 1]), ]
+    feed <- feed[!duplicated(feed), ]
     return(feed)
     #Returns a feed from yahoo finance with specific tickers
   }
@@ -281,7 +292,7 @@ dataGathering <- function (timeInHours = 1,
   
   RSS.Feeds <-
     read_delim(
-      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/RSS Feeds.txt",
+      "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Data/RSS Feeds.txt",
       " ",
       escape_double = FALSE,
       col_names = FALSE,
@@ -290,7 +301,7 @@ dataGathering <- function (timeInHours = 1,
   
   Tickers <-
     read_delim(
-      "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Data/Tickers.txt",
+      "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Data/Tickers.txt",
       " ",
       escape_double = FALSE,
       na = "NA",
@@ -300,17 +311,15 @@ dataGathering <- function (timeInHours = 1,
   tempData <- keywordSearch (RSS.Feeds, Tickers)
   yahooData <- keywordSearch (RSS.Feeds, Tickers, yahoo = T)
   if (resultsFile == T) {
-    
     results <-
       read_delim(
-        "C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Results.txt",
+        "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Results.txt",
         " ",
         escape_double = FALSE,
         trim_ws = TRUE
       )
     
   } else {
-    
     #Code below applies if Results.txt file is missing
     results <-
       data.frame (
@@ -337,114 +346,152 @@ dataGathering <- function (timeInHours = 1,
   res20 <-
     data.frame (Trade.Time = as.character(), Last = as.character())
   i <- 1
-  resLength <- length(results[, 1]) + 1
+  resLength <- nrow(results) + 1
+  baseLength <<- resLength
   
   #------- Execution Function --------
   
   
   tm <- proc.time()
   while ((proc.time() - tm)[3] < (timeInHours * 3600)) {
-    if (havingInternet() == FALSE) {
+    
+    while (havingInternet() == FALSE) {
       Sys.sleep(5)
-    } else {
-      
-      ind1 <- which((proc.time()[3] - tim) > 1200)
-      if (length(ind1) > 0) {
-        for (k in 1:length(ind1)) {
-          res20 <- getQuote0 (unlist(tick[ind1[k]]))[1:2]
-          results <-
-            rbind (results, setNames(cbind(res[[ind1[k]]], res20, "", ""), names(results)))
-        }
-        tim2[ind1] <- tim[ind1]
-        tim[ind1] <- 2000000
-      }
-      
-      ind2 <- which((proc.time()[3] - tim2) > 3600)
-      if (length(ind2) > 0) {
-        for (k in 1:length(ind2)) {
-          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 9:10] <-
-            sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
-          resLength <- resLength + length(unlist(tick[ind2[k]]))
-        }
-        tim2[ind2] <- 2000000
-        res[[ind2]] <- NA
-      }
-      
-      if ((proc.time()[3] - min1) > 120) {
-        tempData <- keywordSearch (
-          webpages = RSS.Feeds,
-          compInfo = Tickers,
-          digInfo = as.character (unlist (tempData[2]))
-        )
-        
-        if (length (tempData) > 2) {
-          tempres <- tickerMatching(info = tempData, compInfo = Tickers)
-          res[[i]] <-
-            cbind(data.frame(tempData[1]), Ticker = tickers, data.frame(tempres))
-          tick[[i]] <- tickers
-          tim[i] <- proc.time()[3]
-          i <- i + 1
-          if (i == 50) {
-            i <- 1
-          }
-        }
-        min1 <- proc.time()[3]
-      }
-      
-      #A separate testing algorythm for yahoo data since it updates more frequently
-      if ((proc.time()[3] - min2) > 60) {
-        yahooData <- keywordSearch (
-          webpages = RSS.Feeds,
-          compInfo = Tickers,
-          digInfo = as.character (unlist (yahooData[2])),
-          yahoo = T
-        )
-        
-        if (length (yahooData) > 2) {
-          tempres <- tickerMatching(info = yahooData, compInfo = Tickers)
-          res[[i]] <-
-            cbind(data.frame(yahooData[1]), Ticker = tickers, data.frame(tempres))
-          tick[[i]] <- tickers
-          tim[i] <- proc.time()[3]
-          i <- i + 1
-          if (i == 50) {
-            i <- 1
-          }
-        }
-        min2 <- proc.time()[3]
-      }
     }
+    
+    ind1 <- which((proc.time()[3] - tim) > 1200)
+    if (length(ind1) > 0) {
+      for (k in 1:length(ind1)) {
+        res20 <- getQuote0 (unlist(tick[ind1[k]]))[1:2]
+        results <-
+          rbind (results, setNames(cbind(res[[ind1[k]]], res20, "", ""), names(results)))
+      }
+      tim2[ind1] <- tim[ind1]
+      tim[ind1] <- 2000000
+    }
+    
+    ind2 <- which((proc.time()[3] - tim2) > 3600)
+    if (length(ind2) > 0) {
+      for (k in 1:length(ind2)) {
+        results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 9:10] <-
+          sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
+        resLength <- resLength + length(unlist(tick[ind2[k]]))
+      }
+      tim2[ind2] <- 2000000
+      res[[ind2]] <- NA
+    }
+    
+    if ((proc.time()[3] - min1) > 120) {
+      tempData <- keywordSearch (
+        webpages = RSS.Feeds,
+        compInfo = Tickers,
+        digInfo = as.character (unlist (tempData[2]))
+      )
+      
+      if (length (tempData) > 2) {
+        tempres <- tickerMatching(info = tempData, compInfo = Tickers)
+        res[[i]] <-
+          cbind(data.frame(tempData[1]), Ticker = tickers, data.frame(tempres))
+        tick[[i]] <- tickers
+        tim[i] <- proc.time()[3]
+        i <- i + 1
+        if (i == 50) {
+          i <- 1
+        }
+      }
+      min1 <- proc.time()[3]
+    }
+    
+    #A separate testing algorythm for yahoo data since it updates more frequently
+    if ((proc.time()[3] - min2) > 60) {
+      yahooData <- keywordSearch (
+        webpages = RSS.Feeds,
+        compInfo = Tickers,
+        digInfo = as.character (unlist (yahooData[2])),
+        yahoo = T
+      )
+      
+      if (length (yahooData) > 2) {
+        tempres <- tickerMatching(info = yahooData, compInfo = Tickers)
+        res[[i]] <-
+          cbind(data.frame(yahooData[1]), Ticker = tickers, data.frame(tempres))
+        tick[[i]] <- tickers
+        tim[i] <- proc.time()[3]
+        i <- i + 1
+        if (i == 50) {
+          i <- 1
+        }
+      }
+      min2 <- proc.time()[3]
+    }
+    
   }
   
   #This part gathers all the "1 hour after the article release time" data after the main script
   #finishes running
   tm <- proc.time()
-  while ((proc.time() - tm)[3] < 3600) {
-    if (havingInternet() == FALSE) {
+  while ((proc.time() - tm)[3] < 3630) {
+    
+    while (havingInternet() == FALSE) {
       Sys.sleep(5)
-    } else {
-      ind2 <- which((proc.time()[3] - tim2) > 3600)
-      if (length(ind2) > 0) {
-        for (k in 1:length(ind2)) {
-          results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 9:10] <-
-            sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
-          resLength <- resLength + length(unlist(tick[ind2[k]]))
-        }
-        tim2[ind2] <- 2000000
-        res[[ind2]] <- NA
-      }
     }
+    
+    ind2 <- which((proc.time()[3] - tim2) > 3600)
+    if (length(ind2) > 0) {
+      for (k in 1:length(ind2)) {
+        results[resLength:(resLength + length(unlist(tick[ind2[k]])) - 1), 9:10] <-
+          sapply(getQuote0 (unlist(tick[ind2[k]]))[, 1:2], as.character)
+        resLength <- resLength + length(unlist(tick[ind2[k]]))
+      }
+      tim2[ind2] <- 2000000
+      res[[ind2]] <- NA
+    }
+    
   }
   
+  rm(tickers)
+  
   if (resultsFile == F) {
-    rm(tickers)
     return (results[-1, ])
   } else {
-    rm(tickers)
     return(results)
   }
 }
 
-Results <- dataGathering (timeInHours = 6, resultsFile = T) #This should be 6
+Results <-
+  dataGathering (timeInHours = 6, resultsFile = T) #This should be 6
 
-write.table(Results,"C:/Users/Jurgis/Desktop/Automatic-article-Searcher/Potencialus plagiatas/Results.txt", row.names = F)
+write.table(
+  Results,
+  "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Results.txt",
+  row.names = F
+)
+
+## An optional code which sends email to my account with the specified Data.
+
+newData <- Results[baseLength:nrow(Results),]$Titles
+write.table(
+  newData,
+  "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/DataToSend.txt",
+  row.names = F
+)
+
+file.copy("D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.Rout", "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.txt")
+
+library(mailR)
+send.mail(from = "aukslius@gmail.com",
+          to = "aukslius@gmail.com",
+          subject = "Script",
+          body = paste("Script has finnished sucessfully at ", 
+                       Sys.time(), ". There was an addition of ", 
+                       (nrow(Results) - baseLength + 1), 
+                       " rows added to the data.", 
+                       "\nAll the data is in the text file\n\n", 
+                       sep = ""),
+          smtp = list(host.name = "smtp.gmail.com", port = 465, 
+          authenticate = TRUE,
+          send = TRUE,
+          attach.files = c("D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.txt","D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/DataToSend.txt"))
+
+##---------
+file.copy()
