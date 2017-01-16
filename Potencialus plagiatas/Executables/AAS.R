@@ -292,7 +292,9 @@ dataGathering <- function (timeInHours = 1,
   
   RSS.Feeds <-
     read_delim(
-      "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Data/RSS Feeds.txt",
+      paste(
+        substr(getwd(), 1, nchar(getwd()) -12),
+        "/Data/RSS Feeds.txt", sep = ""),
       " ",
       escape_double = FALSE,
       col_names = FALSE,
@@ -301,7 +303,9 @@ dataGathering <- function (timeInHours = 1,
   
   Tickers <-
     read_delim(
-      "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Data/Tickers.txt",
+      paste(
+        substr(getwd(), 1, nchar(getwd()) -12),
+        "/Data/Tickers.txt", sep = ""),
       " ",
       escape_double = FALSE,
       na = "NA",
@@ -310,10 +314,13 @@ dataGathering <- function (timeInHours = 1,
   
   tempData <- keywordSearch (RSS.Feeds, Tickers)
   yahooData <- keywordSearch (RSS.Feeds, Tickers, yahoo = T)
+  
   if (resultsFile == T) {
     results <-
       read_delim(
-        "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Results.txt",
+        paste(
+          substr(getwd(), 1, nchar(getwd()) -12),
+          "/Results.txt", sep = ""),
         " ",
         escape_double = FALSE,
         trim_ws = TRUE
@@ -336,7 +343,7 @@ dataGathering <- function (timeInHours = 1,
         stringsAsFactors = FALSE
       )
   }
-  
+
   min1 <- 0
   min2 <- 0
   tim <- rep(200000, 50)
@@ -463,7 +470,9 @@ Results <-
 
 write.table(
   Results,
-  "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Results.txt",
+  paste(
+    substr(getwd(), 1, nchar(getwd()) -12),
+    "/Results.txt", sep = ""),
   row.names = F
 )
 
@@ -472,11 +481,19 @@ write.table(
 newData <- Results[baseLength:nrow(Results),]$Titles
 write.table(
   newData,
-  "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/DataToSend.txt",
+  paste(
+    getwd(),
+    "/DataToSend.txt", sep = ""),
   row.names = F
 )
 
-file.copy("D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.Rout", "D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.txt")
+file.copy(paste(
+  getwd(),
+  "/AAS.Rout", sep = ""),
+  paste(
+    getwd(),
+    "/AAS.txt", sep = "")
+  )
 
 library(mailR)
 send.mail(from = "aukslius@gmail.com",
@@ -493,7 +510,11 @@ send.mail(from = "aukslius@gmail.com",
                       passwd = "no", ssl = TRUE),
           authenticate = TRUE,
           send = TRUE,
-          attach.files = c("D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/AAS.txt","D:/Random/Automatic-Article-Searcher-master/Automatic-Article-Searcher-master/Potencialus plagiatas/Executables/DataToSend.txt"))
-
+          attach.files = c(paste(
+            getwd(),
+            "/AAS.txt", sep = ""),
+            paste(
+              getwd(),
+              "/DataToSend.txt", sep = "")
+          )
 ##---------
-file.copy()
