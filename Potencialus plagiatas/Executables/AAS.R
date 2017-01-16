@@ -1,7 +1,7 @@
 #------- Fixing the Dates Function ------
 #This will fix the disarray of times between stock quote date and article release
 #date since algorythm isn't exactly perfect and free information will always be
-#bad.
+#bad information.
 
 fixTheDates <- function(results){
   
@@ -277,7 +277,7 @@ rssFeed <- function (webpages, yahoo = F) {
       "https://feeds.finance.yahoo.com/rss/2.0/headline?s=bac,f,fcx,jcp,vale,chk,wfc,pbr,c,pfe,abx,gm,wft,aks,abev,cx,mt,jpm,auy,t,baba,dis,ms,vrx,fcau,x,rad,itub,kgc,ggb,wll,gg,kmi,vz,cfg,clf,kors,syf,twtr,tck,bby,rig,mrk,mro,xom,ete,ko,dnr,ego,bmy,slw,hmy,orcl,oas,hst,azn,ag,lc,eca,nok,schw,jwn,kr,coty,gpt,kss,fit,met,amx,au,p,dal,hpq,bbt,gfi,abbv,exc,gnw,iag,aig,cig,usb,cvs,dow,bcs,hpe,san,ctl,phm,m&region=US&lang=en-US"
     doc <- try(xmlInternalTreeParse(getURL(webpages)))
     if (class(doc)[1] == "try-error") {
-      return(class(script))
+      return(class(doc))
     }
     Titles    <- xpathSApply(doc, '//item/title', xmlValue)
     Pubdates <- xpathSApply(doc, '//item/pubDate', xmlValue)
