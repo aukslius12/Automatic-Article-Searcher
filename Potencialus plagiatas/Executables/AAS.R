@@ -1,3 +1,31 @@
+#------- Fixing the Dates Function ------
+#This will fix the disarray of times between stock quote date and article release
+#date since algorythm isn't exactly perfect and free information will always be
+#bad information.
+
+fixTheDates <- function(results){
+  
+  Sys.setlocale('LC_TIME','C')
+  results$Pubdates <- strptime(results$Pubdates, "%a, %d %b %Y %H:%M:%S", tz = "EST")
+  results$Pubdates <- results$Pubdates - 3600*5
+  results$Pubdates <- format (results$Pubdates, format = "%b %d, %H:%M%p", tz = "EST", usetz = T)
+  results$Pubdates <- strptime(results$Pubdates, format = "%b %d, %H:%M%p", tz = "EST")
+  results$Trade.Time <- strptime(results$Trade.Time, "%b %d, %I:%M%p", tz = "EST")
+  results$Trade.Time.1 <- strptime(results$Trade.Time.1, "%b %d, %I:%M%p", tz = "EST")
+  results$Trade.Time.2 <- strptime(results$Trade.Time.2, "%b %d, %I:%M%p", tz = "EST")
+  
+  tdiff <- as.numeric(results$Pubdates - results$Trade.Time)
+  results <- results[which(abs(tdiff)/60 <= 1),]#Returning data where time difference is less than 2 minutes.
+  
+  results$Pubdates <- as.character(results$Pubdates)
+  results$Trade.Time <- as.character(results$Trade.Time)
+  results$Trade.Time.1 <- as.character(results$Trade.Time.1)
+  results$Trade.Time.2 <- as.character(results$Trade.Time.2)
+  
+  return(results)
+} 
+
+
 #------- Internet Connectivity Function ------
 
 #A simple output of TRUE/FALSE depending on if there is an internet connectivity.
@@ -249,7 +277,7 @@ rssFeed <- function (webpages, yahoo = F) {
       "https://feeds.finance.yahoo.com/rss/2.0/headline?s=bac,f,fcx,jcp,vale,chk,wfc,pbr,c,pfe,abx,gm,wft,aks,abev,cx,mt,jpm,auy,t,baba,dis,ms,vrx,fcau,x,rad,itub,kgc,ggb,wll,gg,kmi,vz,cfg,clf,kors,syf,twtr,tck,bby,rig,mrk,mro,xom,ete,ko,dnr,ego,bmy,slw,hmy,orcl,oas,hst,azn,ag,lc,eca,nok,schw,jwn,kr,coty,gpt,kss,fit,met,amx,au,p,dal,hpq,bbt,gfi,abbv,exc,gnw,iag,aig,cig,usb,cvs,dow,bcs,hpe,san,ctl,phm,m&region=US&lang=en-US"
     doc <- try(xmlInternalTreeParse(getURL(webpages)))
     if (class(doc)[1] == "try-error") {
-      return(class(script))
+      return(class(doc))
     }
     Titles    <- xpathSApply(doc, '//item/title', xmlValue)
     Pubdates <- xpathSApply(doc, '//item/pubDate', xmlValue)
@@ -315,34 +343,20 @@ dataGathering <- function (timeInHours = 1,
   tempData <- keywordSearch (RSS.Feeds, Tickers)
   yahooData <- keywordSearch (RSS.Feeds, Tickers, yahoo = T)
   
-  if (resultsFile == T) {
-    results <-
-      read_delim(
-        paste(
-          substr(getwd(), 1, nchar(getwd()) -12),
-          "/Results.txt", sep = ""),
-        " ",
-        escape_double = FALSE,
-        trim_ws = TRUE
-      )
-    
-  } else {
-    #Code below applies if Results.txt file is missing
-    results <-
-      data.frame (
-        Titles = as.character(""),
-        Pubdates = as.character(""),
-        Links = as.character(""),
-        Tickers = as.character(""),
-        Trade.Time = as.character(""),
-        Last = as.character(""),
-        Trade.Time = as.character(""),
-        Last = as.character(""),
-        Trade.Time = as.character(""),
-        Last = as.character(""),
-        stringsAsFactors = FALSE
-      )
-  }
+  results <-
+    data.frame (
+      Titles = as.character(""),
+      Pubdates = as.character(""),
+      Links = as.character(""),
+      Tickers = as.character(""),
+      Trade.Time = as.character(""),
+      Last = as.character(""),
+      Trade.Time = as.character(""),
+      Last = as.character(""),
+      Trade.Time = as.character(""),
+      Last = as.character(""),
+      stringsAsFactors = FALSE
+    )
 
   min1 <- 0
   min2 <- 0
@@ -354,7 +368,6 @@ dataGathering <- function (timeInHours = 1,
     data.frame (Trade.Time = as.character(), Last = as.character())
   i <- 1
   resLength <- nrow(results) + 1
-  baseLength <<- resLength
   
   #------- Execution Function --------
   
@@ -456,13 +469,21 @@ dataGathering <- function (timeInHours = 1,
     
   }
   
-  rm(tickers)
+  results <- results[-1, ]
+  results <- fixTheDates(results) #Fixing the data and reducing error.
   
-  if (resultsFile == F) {
-    return (results[-1, ])
-  } else {
-    return(results)
-  }
+  oldResults <- read_delim(paste(
+    substr(getwd(), 1, nchar(getwd()) -12),
+    "/Results.txt", sep = ""),
+    " ", escape_double = FALSE, trim_ws = TRUE)
+  
+  #Optional for info on how many rows were added.
+  newLength <<- nrow(results)
+  
+  #Combining new with old.
+  results <- rbind(oldResults, results)
+  
+  return(results)
 }
 
 Results <-
@@ -478,7 +499,7 @@ write.table(
 
 ## An optional code which sends email to my account with the specified Data.
 
-newData <- Results[baseLength:nrow(Results),]$Titles
+newData <- Results[(nrow(Results)-newLength + 1):nrow(Results),]
 write.table(
   newData,
   paste(
@@ -501,20 +522,21 @@ send.mail(from = "aukslius@gmail.com",
           subject = "Script",
           body = paste("Script has finnished sucessfully at ", 
                        Sys.time(), ". There was an addition of ", 
-                       (nrow(Results) - baseLength + 1), 
+                       newLength, 
                        " rows added to the data.", 
                        "\nAll the data is in the text file\n\n", 
                        sep = ""),
           smtp = list(host.name = "smtp.gmail.com", port = 465, 
-                      user.name = "no.com",            
-                      passwd = "no", ssl = TRUE),
+                      user.name = "aukslius@gmail.com",            
+                      passwd = "msbt0326", ssl = TRUE),
           authenticate = TRUE,
           send = TRUE,
-          attach.files = c(paste(
-            getwd(),
-            "/AAS.txt", sep = ""),
+          attach.files = c(
             paste(
               getwd(),
-              "/DataToSend.txt", sep = "")
+              "/AAS.txt", sep = ""),
+            paste(
+              getwd(),
+              "/DataToSend.txt", sep = ""))
           )
 ##---------
